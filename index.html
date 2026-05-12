@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>3D Viewer</title>
 
-  <!-- Correct model-viewer script -->
+  <!-- model-viewer -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
@@ -23,41 +23,50 @@
 
 <body>
 
-  <model-viewer
-    id="viewer"
-    src="https://raw.githubusercontent.com/rachaelhannah1101-commits/3d-viewer/main/wall_40w_40h_3s_br.glb"
-    camera-controls
-    auto-rotate
-    shadow-intensity="1">
-  </model-viewer>
+<model-viewer
+  id="viewer"
+  camera-controls
+  shadow-intensity="1"
+  exposure="1"
+  ar
+></model-viewer>
 
 <script>
   const BASE_URL = "https://raw.githubusercontent.com/rachaelhannah1101-commits/3d-viewer/main/";
   const viewer = document.getElementById("viewer");
 
+  // ✅ Load based on URL parameter (THIS is what Webflow uses)
+  function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const model = params.get("model");
+
+    if (model) {
+      viewer.src = BASE_URL + model;
+    } else {
+      // ✅ fallback default model
+      viewer.src = BASE_URL + "wall_40w_40h_3s_br.glb";
+    }
+  }
+
+  // ✅ Run on page load
+  loadFromURL();
+
+  // ✅ Auto-rotate ONLY when model loads (safe version)
+  viewer.addEventListener("load", () => {
+    viewer.setAttribute("auto-rotate", "");
+  });
+
+  // ✅ Stop rotation on user interaction
+  viewer.addEventListener("camera-change", () => {
+    viewer.removeAttribute("auto-rotate");
+  });
+
+  // ✅ Keep function for manual switching (optional)
   function changeModel(file) {
     viewer.src = BASE_URL + file;
-
-    // Wait for new model to load
-    viewer.addEventListener("load", () => {
-      startAutoRotate();
-    }, { once: true });
   }
-
-  function startAutoRotate() {
-    viewer.setAttribute("auto-rotate", "");
-  }
-
-  function stopAutoRotate() {
-    viewer.removeAttribute("auto-rotate");
-  }
-
-  // Stop rotating when user interacts
-  viewer.addEventListener("camera-change", () => {
-    stopAutoRotate();
-  });
 </script>
 
-  
 </body>
 </html>
+``

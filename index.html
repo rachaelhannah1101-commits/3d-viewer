@@ -4,22 +4,30 @@
   <meta charset="UTF-8">
   <title>3D Viewer</title>
 
-  <!-- Model Viewer -->
+  <!-- ✅ Model Viewer -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
+    /* ✅ Remove all scroll + ensure full fit */
     html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
       height: 100%;
-      overflow: hidden; /* ✅ Removes scrollbars */
+      overflow: hidden;
+      position: relative;
       background: #f5f5f5;
     }
 
+    /* ✅ Force viewer to fully fill iframe (no overflow) */
     model-viewer {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: 100%; /* ✅ Fill iframe instead of viewport */
+      height: 100%;
       display: block;
+      overflow: hidden;
       background-color: #f5f5f5;
     }
   </style>
@@ -36,11 +44,14 @@
 ></model-viewer>
 
 <script>
-  // ✅ Base GitHub file location
+  // ✅ Base GitHub model path
   const BASE_URL = "https://raw.githubusercontent.com/rachaelhannah1101-commits/3d-viewer/main/";
   const viewer = document.getElementById("viewer");
 
-  // ✅ Load model from URL parameter (THIS is what Webflow uses)
+  // ✅ Track real user interaction
+  let userInteracted = false;
+
+  // ✅ Load model from URL (Webflow uses this)
   function loadFromURL() {
     const params = new URLSearchParams(window.location.search);
     const model = params.get("model");
@@ -53,20 +64,28 @@
     }
   }
 
-  // ✅ Run when page loads
+  // ✅ Load model immediately
   loadFromURL();
 
-  // ✅ Rotate once when model loads
+  // ✅ Start auto-rotation AFTER model loads
   viewer.addEventListener("load", () => {
+    userInteracted = false;
     viewer.setAttribute("auto-rotate", "");
   });
 
-  // ✅ Stop rotation when user interacts
-  viewer.addEventListener("camera-change", () => {
-    viewer.removeAttribute("auto-rotate");
+  // ✅ Detect real user interaction
+  viewer.addEventListener("pointerdown", () => {
+    userInteracted = true;
   });
 
-  // ✅ Optional: keep manual switching function (not used by Webflow currently)
+  // ✅ Stop rotating ONLY after user interacts
+  viewer.addEventListener("camera-change", () => {
+    if (userInteracted) {
+      viewer.removeAttribute("auto-rotate");
+    }
+  });
+
+  // ✅ Optional manual model change (not used by Webflow but safe to keep)
   function changeModel(file) {
     viewer.src = BASE_URL + file;
   }

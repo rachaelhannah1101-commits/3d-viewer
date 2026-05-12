@@ -27,24 +27,36 @@
     id="viewer"
     src="https://raw.githubusercontent.com/rachaelhannah1101-commits/3d-viewer/main/wall_40w_40h_3s_br.glb"
     camera-controls
-    auto-rotate
     shadow-intensity="1">
   </model-viewer>
 
 <script>
   const BASE_URL = "https://raw.githubusercontent.com/rachaelhannah1101-commits/3d-viewer/main/";
+  const viewer = document.getElementById("viewer");
 
-  const params = new URLSearchParams(window.location.search);
-  const model = params.get("model");
+  function changeModel(file) {
+    viewer.src = BASE_URL + file;
 
-  if (model) {
-    document.getElementById("viewer").src = BASE_URL + model;
+    // Wait for new model to load
+    viewer.addEventListener("load", () => {
+      startAutoRotate();
+    }, { once: true });
   }
 
-  function changeModel(file){
-    document.getElementById("viewer").src = BASE_URL + file;
+  function startAutoRotate() {
+    viewer.setAttribute("auto-rotate", "");
   }
+
+  function stopAutoRotate() {
+    viewer.removeAttribute("auto-rotate");
+  }
+
+  // Stop rotating when user interacts
+  viewer.addEventListener("camera-change", () => {
+    stopAutoRotate();
+  });
 </script>
+
   
 </body>
 </html>
